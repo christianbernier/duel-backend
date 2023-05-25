@@ -1,0 +1,39 @@
+{
+  "name": "duel_server",
+  "version": "0.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "serve:dev": "npx nodemon",
+    "serve:prod": "npm run build:prod && node build/app.js",
+    "build:prod": "rimraf ./build && tsc"
+  },
+  "author": "Christian Bernier",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.17",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.1",
+    "@types/uuid": "^9.0.1",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
+    "eslint": "^8.40.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "nodemon": "^2.0.22",
+    "prettier": "2.8.8",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
