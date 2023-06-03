@@ -7,99 +7,104 @@ import {
   GrayResource,
   GuildType,
   LinkSymbol,
-  ScienceType,
+  ScienceType
 } from "../models";
+import * as CardActions from "./card-actions";
 
 export const Age1Cards: Partial<Card>[] = [
   {
-    name: "Lumber Yard",
+    name: 'Lumber Yard',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.WOOD],
   },
   {
-    name: "Logging Camp",
+    name: 'Logging Camp',
     resourceCost: [],
     coinCost: 1,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.WOOD],
   },
   {
-    name: "Clay Pool",
+    name: 'Clay Pool',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.CLAY],
   },
   {
-    name: "Clay Pit",
+    name: 'Clay Pit',
     resourceCost: [],
     coinCost: 1,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.CLAY],
   },
   {
-    name: "Quarry",
+    name: 'Quarry',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.STONE],
   },
   {
-    name: "Stone Pit",
+    name: 'Stone Pit',
     resourceCost: [],
     coinCost: 1,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.STONE],
   },
   {
-    name: "Glassworks",
+    name: 'Glassworks',
     resourceCost: [],
     coinCost: 1,
     cardType: CardType.GRAY_PRODUCTION,
     produces: [GrayResource.GLASS],
   },
   {
-    name: "Press",
+    name: 'Press',
     resourceCost: [],
     coinCost: 1,
     cardType: CardType.GRAY_PRODUCTION,
     produces: [GrayResource.PAPYRUS],
   },
   {
-    name: "Guard Tower",
+    name: 'Guard Tower',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.RED_ARMY,
     shields: 1,
+    onBuy: CardActions.onBuyArmyCard(1),
   },
   {
-    name: "Stable",
+    name: 'Stable',
     resourceCost: [BrownResource.WOOD],
     coinCost: 0,
     cardType: CardType.RED_ARMY,
     shields: 1,
     providesLink: LinkSymbol.HORSESHOE,
+    onBuy: CardActions.onBuyArmyCard(1),
   },
   {
-    name: "Garrison",
+    name: 'Garrison',
     resourceCost: [BrownResource.CLAY],
     coinCost: 0,
     cardType: CardType.RED_ARMY,
     shields: 1,
     providesLink: LinkSymbol.SWORD,
+    onBuy: CardActions.onBuyArmyCard(1),
   },
   {
-    name: "Palisade",
+    name: 'Palisade',
     resourceCost: [],
     coinCost: 2,
     cardType: CardType.RED_ARMY,
     shields: 1,
     providesLink: LinkSymbol.CASTLE,
+    onBuy: CardActions.onBuyArmyCard(1),
   },
   {
-    name: "Workshop",
+    name: 'Workshop',
     resourceCost: [GrayResource.PAPYRUS],
     coinCost: 0,
     cardType: CardType.GREEN_SCIENCE,
@@ -107,7 +112,7 @@ export const Age1Cards: Partial<Card>[] = [
     victoryPoints: 1,
   },
   {
-    name: "Apothecary",
+    name: 'Apothecary',
     resourceCost: [GrayResource.GLASS],
     coinCost: 0,
     cardType: CardType.GREEN_SCIENCE,
@@ -115,7 +120,7 @@ export const Age1Cards: Partial<Card>[] = [
     victoryPoints: 1,
   },
   {
-    name: "Scriptorium",
+    name: 'Scriptorium',
     resourceCost: [],
     coinCost: 2,
     cardType: CardType.GREEN_SCIENCE,
@@ -124,7 +129,7 @@ export const Age1Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.BOOK,
   },
   {
-    name: "Pharmacist",
+    name: 'Pharmacist',
     resourceCost: [],
     coinCost: 2,
     cardType: CardType.GREEN_SCIENCE,
@@ -133,40 +138,44 @@ export const Age1Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.GEAR,
   },
   {
-    name: "Stone Reserve",
+    name: 'Stone Reserve',
     resourceCost: [],
     coinCost: 3,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.BROWN_RESOURCE_DISCOUNT,
     resource: BrownResource.STONE,
+    onBuy: CardActions.onBuyResourceDiscountCard([BrownResource.STONE]),
   },
   {
-    name: "Clay Reserve",
+    name: 'Clay Reserve',
     resourceCost: [],
     coinCost: 3,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.BROWN_RESOURCE_DISCOUNT,
     resource: BrownResource.CLAY,
+    onBuy: CardActions.onBuyResourceDiscountCard([BrownResource.CLAY]),
   },
   {
-    name: "Wood Reserve",
+    name: 'Wood Reserve',
     resourceCost: [],
     coinCost: 3,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.BROWN_RESOURCE_DISCOUNT,
     resource: BrownResource.WOOD,
+    onBuy: CardActions.onBuyResourceDiscountCard([BrownResource.WOOD]),
   },
   {
-    name: "Tavern",
+    name: 'Tavern',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.COINS,
     coins: 4,
     providesLink: LinkSymbol.VASE,
+    onBuy: CardActions.onBuyCoinCard(4),
   },
   {
-    name: "Theater",
+    name: 'Theater',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
@@ -174,7 +183,7 @@ export const Age1Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.MASK,
   },
   {
-    name: "Altar",
+    name: 'Altar',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
@@ -182,7 +191,7 @@ export const Age1Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.MOON,
   },
   {
-    name: "Baths",
+    name: 'Baths',
     resourceCost: [BrownResource.STONE],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
@@ -193,65 +202,68 @@ export const Age1Cards: Partial<Card>[] = [
 
 export const Age2Cards: Partial<Card>[] = [
   {
-    name: "Saw Mill",
+    name: 'Saw Mill',
     resourceCost: [],
     coinCost: 2,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.WOOD, BrownResource.WOOD],
   },
   {
-    name: "Brickyard",
+    name: 'Brickyard',
     resourceCost: [],
     coinCost: 2,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.CLAY, BrownResource.CLAY],
   },
   {
-    name: "Shelf Quarry",
+    name: 'Shelf Quarry',
     resourceCost: [],
     coinCost: 2,
     cardType: CardType.BROWN_PRODUCTION,
     produces: [BrownResource.STONE, BrownResource.STONE],
   },
   {
-    name: "Glassblower",
+    name: 'Glassblower',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.GRAY_PRODUCTION,
     produces: [GrayResource.GLASS],
   },
   {
-    name: "Drying Room",
+    name: 'Drying Room',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.GRAY_PRODUCTION,
     produces: [GrayResource.PAPYRUS],
   },
   {
-    name: "Walls",
+    name: 'Walls',
     resourceCost: [BrownResource.STONE, BrownResource.STONE],
     coinCost: 0,
     cardType: CardType.RED_ARMY,
     shields: 2,
+    onBuy: CardActions.onBuyArmyCard(2),
   },
   {
-    name: "Horse Breeders",
+    name: 'Horse Breeders',
     resourceCost: [BrownResource.CLAY, BrownResource.WOOD],
     coinCost: 0,
     cardType: CardType.RED_ARMY,
     shields: 1,
     buyWithLink: LinkSymbol.HORSESHOE,
+    onBuy: CardActions.onBuyArmyCard(1),
   },
   {
-    name: "Barracks",
+    name: 'Barracks',
     resourceCost: [],
     coinCost: 3,
     cardType: CardType.RED_ARMY,
     shields: 1,
     buyWithLink: LinkSymbol.SWORD,
+    onBuy: CardActions.onBuyArmyCard(1),
   },
   {
-    name: "Archery Range",
+    name: 'Archery Range',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.WOOD,
@@ -261,9 +273,10 @@ export const Age2Cards: Partial<Card>[] = [
     cardType: CardType.RED_ARMY,
     shields: 2,
     providesLink: LinkSymbol.TARGET,
+    onBuy: CardActions.onBuyArmyCard(2),
   },
   {
-    name: "Parade Ground",
+    name: 'Parade Ground',
     resourceCost: [BrownResource.CLAY, BrownResource.CLAY, GrayResource.GLASS],
     coinCost: 0,
     cardType: CardType.RED_ARMY,
@@ -271,7 +284,7 @@ export const Age2Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.HELMET,
   },
   {
-    name: "Library",
+    name: 'Library',
     resourceCost: [BrownResource.STONE, BrownResource.WOOD, GrayResource.GLASS],
     coinCost: 0,
     cardType: CardType.GREEN_SCIENCE,
@@ -280,7 +293,7 @@ export const Age2Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.BOOK,
   },
   {
-    name: "Dispensary",
+    name: 'Dispensary',
     resourceCost: [BrownResource.CLAY, BrownResource.CLAY, BrownResource.STONE],
     coinCost: 0,
     cardType: CardType.GREEN_SCIENCE,
@@ -289,7 +302,7 @@ export const Age2Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.GEAR,
   },
   {
-    name: "School",
+    name: 'School',
     resourceCost: [
       BrownResource.WOOD,
       GrayResource.PAPYRUS,
@@ -302,7 +315,7 @@ export const Age2Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.HARP,
   },
   {
-    name: "Laboratory",
+    name: 'Laboratory',
     resourceCost: [BrownResource.WOOD, GrayResource.GLASS, GrayResource.GLASS],
     coinCost: 0,
     cardType: CardType.GREEN_SCIENCE,
@@ -311,44 +324,49 @@ export const Age2Cards: Partial<Card>[] = [
     providesLink: LinkSymbol.TEA,
   },
   {
-    name: "Forum",
+    name: 'Forum',
     resourceCost: [BrownResource.CLAY],
     coinCost: 3,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.ANY_GRAY_RESOURCE,
   },
   {
-    name: "Caravansery",
+    name: 'Caravansery',
     resourceCost: [GrayResource.GLASS, GrayResource.PAPYRUS],
     coinCost: 2,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.ANY_BROWN_RESOURCE,
   },
   {
-    name: "Customs House",
+    name: 'Customs House',
     resourceCost: [],
     coinCost: 4,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.GRAY_RESOURCE_DISCOUNT,
     resources: [GrayResource.PAPYRUS, GrayResource.GLASS],
+    onBuy: CardActions.onBuyResourceDiscountCard([
+      GrayResource.PAPYRUS,
+      GrayResource.GLASS,
+    ]),
   },
   {
-    name: "Brewery",
+    name: 'Brewery',
     resourceCost: [],
     coinCost: 0,
     cardType: CardType.YELLOW_COMMERCIAL,
     commercialType: CommercialType.COINS,
     coins: 6,
+    onBuy: CardActions.onBuyCoinCard(6),
   },
   {
-    name: "Tribunal",
+    name: 'Tribunal',
     resourceCost: [BrownResource.WOOD, BrownResource.WOOD, GrayResource.GLASS],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
     victoryPoints: 5,
   },
   {
-    name: "Statue",
+    name: 'Statue',
     resourceCost: [BrownResource.CLAY, BrownResource.CLAY],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
@@ -357,7 +375,7 @@ export const Age2Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.MASK,
   },
   {
-    name: "Temple",
+    name: 'Temple',
     resourceCost: [BrownResource.WOOD, GrayResource.PAPYRUS],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
@@ -366,7 +384,7 @@ export const Age2Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.MOON,
   },
   {
-    name: "Aqueduct",
+    name: 'Aqueduct',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.STONE,
@@ -378,7 +396,7 @@ export const Age2Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.RAIN,
   },
   {
-    name: "Rostrum",
+    name: 'Rostrum',
     resourceCost: [BrownResource.STONE, BrownResource.WOOD],
     coinCost: 0,
     cardType: CardType.BLUE_VICTORY,
@@ -389,7 +407,7 @@ export const Age2Cards: Partial<Card>[] = [
 
 export const Age3Cards: Partial<Card>[] = [
   {
-    name: "Arsenal",
+    name: 'Arsenal',
     resourceCost: [
       BrownResource.CLAY,
       BrownResource.CLAY,
@@ -400,16 +418,18 @@ export const Age3Cards: Partial<Card>[] = [
     coinCost: 0,
     cardType: CardType.RED_ARMY,
     shields: 3,
+    onBuy: CardActions.onBuyArmyCard(3),
   },
   {
-    name: "Courthouse",
+    name: 'Courthouse',
     resourceCost: [],
     coinCost: 8,
     cardType: CardType.RED_ARMY,
     shields: 3,
+    onBuy: CardActions.onBuyArmyCard(3),
   },
   {
-    name: "Fortifications",
+    name: 'Fortifications',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.STONE,
@@ -420,9 +440,10 @@ export const Age3Cards: Partial<Card>[] = [
     cardType: CardType.RED_ARMY,
     shields: 2,
     buyWithLink: LinkSymbol.CASTLE,
+    onBuy: CardActions.onBuyArmyCard(2),
   },
   {
-    name: "Siege Workshop",
+    name: 'Siege Workshop',
     resourceCost: [
       BrownResource.WOOD,
       BrownResource.WOOD,
@@ -433,9 +454,10 @@ export const Age3Cards: Partial<Card>[] = [
     cardType: CardType.RED_ARMY,
     shields: 2,
     buyWithLink: LinkSymbol.TARGET,
+    onBuy: CardActions.onBuyArmyCard(2),
   },
   {
-    name: "Circus",
+    name: 'Circus',
     resourceCost: [
       BrownResource.CLAY,
       BrownResource.CLAY,
@@ -446,9 +468,10 @@ export const Age3Cards: Partial<Card>[] = [
     cardType: CardType.RED_ARMY,
     shields: 2,
     buyWithLink: LinkSymbol.HELMET,
+    onBuy: CardActions.onBuyArmyCard(2),
   },
   {
-    name: "Academy",
+    name: 'Academy',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.WOOD,
@@ -461,7 +484,7 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 3,
   },
   {
-    name: "Study",
+    name: 'Study',
     resourceCost: [
       BrownResource.WOOD,
       BrownResource.WOOD,
@@ -474,7 +497,7 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 3,
   },
   {
-    name: "University",
+    name: 'University',
     resourceCost: [
       BrownResource.CLAY,
       GrayResource.GLASS,
@@ -487,7 +510,7 @@ export const Age3Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.HARP,
   },
   {
-    name: "Observatory",
+    name: 'Observatory',
     resourceCost: [
       BrownResource.STONE,
       GrayResource.PAPYRUS,
@@ -500,7 +523,7 @@ export const Age3Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.TEA,
   },
   {
-    name: "Chamber of Commerce",
+    name: 'Chamber of Commerce',
     resourceCost: [GrayResource.PAPYRUS, GrayResource.PAPYRUS],
     coinCost: 0,
     cardType: CardType.YELLOW_COMMERCIAL,
@@ -510,7 +533,7 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 3,
   },
   {
-    name: "Port",
+    name: 'Port',
     resourceCost: [
       BrownResource.WOOD,
       GrayResource.GLASS,
@@ -522,9 +545,10 @@ export const Age3Cards: Partial<Card>[] = [
     coinsForCardType: CardType.BROWN_PRODUCTION,
     coinsPerCard: 2,
     victoryPoints: 3,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(2, CardType.BROWN_PRODUCTION),
   },
   {
-    name: "Armory",
+    name: 'Armory',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.STONE,
@@ -536,9 +560,10 @@ export const Age3Cards: Partial<Card>[] = [
     coinsForCardType: CardType.RED_ARMY,
     coinsPerCard: 1,
     victoryPoints: 3,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.RED_ARMY),
   },
   {
-    name: "Lighthouse",
+    name: 'Lighthouse',
     resourceCost: [BrownResource.CLAY, BrownResource.CLAY, GrayResource.GLASS],
     coinCost: 0,
     cardType: CardType.YELLOW_COMMERCIAL,
@@ -547,9 +572,10 @@ export const Age3Cards: Partial<Card>[] = [
     coinsPerCard: 1,
     victoryPoints: 3,
     buyWithLink: LinkSymbol.VASE,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.YELLOW_COMMERCIAL),
   },
   {
-    name: "Arena",
+    name: 'Arena',
     resourceCost: [BrownResource.CLAY, BrownResource.STONE, BrownResource.WOOD],
     coinCost: 0,
     cardType: CardType.YELLOW_COMMERCIAL,
@@ -557,9 +583,10 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 3,
     coinsPerWonder: 2,
     buyWithLink: LinkSymbol.BARREL,
+    onBuy: CardActions.onBuyCoinsPerWonderCard(2),
   },
   {
-    name: "Palace",
+    name: 'Palace',
     resourceCost: [
       BrownResource.CLAY,
       BrownResource.STONE,
@@ -572,7 +599,7 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 7,
   },
   {
-    name: "Town Hall",
+    name: 'Town Hall',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.STONE,
@@ -585,7 +612,7 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 7,
   },
   {
-    name: "Obelisk",
+    name: 'Obelisk',
     resourceCost: [
       BrownResource.STONE,
       BrownResource.STONE,
@@ -596,7 +623,7 @@ export const Age3Cards: Partial<Card>[] = [
     victoryPoints: 5,
   },
   {
-    name: "Gardens",
+    name: 'Gardens',
     resourceCost: [
       BrownResource.CLAY,
       BrownResource.CLAY,
@@ -609,7 +636,7 @@ export const Age3Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.COLUMN,
   },
   {
-    name: "Pantheon",
+    name: 'Pantheon',
     resourceCost: [
       BrownResource.CLAY,
       BrownResource.WOOD,
@@ -622,7 +649,7 @@ export const Age3Cards: Partial<Card>[] = [
     buyWithLink: LinkSymbol.SUN,
   },
   {
-    name: "Senate",
+    name: 'Senate',
     resourceCost: [
       BrownResource.CLAY,
       BrownResource.CLAY,
@@ -652,6 +679,7 @@ export const GuildCards: Partial<Card>[] = [
     coins: 1,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.YELLOW_COMMERCIAL),
   },
   {
     name: "Shipowner's Guild",
@@ -668,6 +696,7 @@ export const GuildCards: Partial<Card>[] = [
     coins: 1,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.BROWN_PRODUCTION, CardType.GRAY_PRODUCTION),
   },
   {
     name: "Builder's Guild",
@@ -699,6 +728,7 @@ export const GuildCards: Partial<Card>[] = [
     coins: 1,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.BLUE_VICTORY),
   },
   {
     name: "Scientist's Guild",
@@ -715,6 +745,7 @@ export const GuildCards: Partial<Card>[] = [
     coins: 1,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.GREEN_SCIENCE),
   },
   {
     name: "Moneylender's Guild",
@@ -730,6 +761,7 @@ export const GuildCards: Partial<Card>[] = [
     coins: 3,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
+    onBuy: CardActions.onBuyCoinCard(3),
   },
   {
     name: "Tactician's Guild",
@@ -746,5 +778,6 @@ export const GuildCards: Partial<Card>[] = [
     coins: 1,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.RED_ARMY),
   },
 ];

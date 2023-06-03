@@ -1,6 +1,6 @@
-import { Age, Card, CardStage } from "../models";
-import { CardDeckController } from "./card-deck.controller";
-import { Age1CardStage, Age2CardStage, Age3CardStage } from "../fixtures";
+import { Age, Card, CardStage, UUID } from '../models';
+import { CardDeckController } from './card-deck.controller';
+import { Age1CardStage, Age2CardStage, Age3CardStage } from '../fixtures';
 
 export class CardStageController {
   private stage: CardStage;
@@ -9,15 +9,15 @@ export class CardStageController {
     return this.stage.map((cardStageRow) => {
       return cardStageRow.map((cardPlace) => {
         switch (cardPlace.type) {
-          case "FACE_UP":
+          case 'FACE_UP':
             return cardPlace;
-          case "FACE_DOWN":
+          case 'FACE_DOWN':
             return {
               ...cardPlace,
               faceDownCard: cardPlace.reverse?.reverse,
               reverse: undefined,
             };
-          case "PLACEHOLDER":
+          case 'PLACEHOLDER':
             return cardPlace;
         }
       });
@@ -49,35 +49,35 @@ export class CardStageController {
     stagePattern.forEach((cardTemplate: string, a): void => {
       const cardStageRow: (
         | {
-            type: "FACE_UP";
+            type: 'FACE_UP';
             faceUpCard: Card;
           }
         | {
-            type: "FACE_DOWN";
+            type: 'FACE_DOWN';
             reverse: Card;
           }
         | {
-            type: "PLACEHOLDER";
+            type: 'PLACEHOLDER';
           }
       )[] = [];
 
-      cardTemplate.split("").forEach((cardType: string, b): void => {
+      cardTemplate.split('').forEach((cardType: string, b): void => {
         switch (cardType) {
-          case "U":
+          case 'U':
             cardStageRow.push({
-              type: "FACE_UP",
+              type: 'FACE_UP',
               faceUpCard: this.cards.draw(),
             });
             break;
-          case "D":
+          case 'D':
             cardStageRow.push({
-              type: "FACE_DOWN",
+              type: 'FACE_DOWN',
               reverse: this.cards.draw(),
             });
             break;
-          case "P":
+          case 'P':
             cardStageRow.push({
-              type: "PLACEHOLDER",
+              type: 'PLACEHOLDER',
             });
             break;
         }
@@ -87,8 +87,10 @@ export class CardStageController {
     });
   }
 
-  public clickable(card: Card): boolean {
+  public isClickable(card: Card): boolean {
     let clickable = false;
+
+    console.log('isclickable', card);
 
     this.stage.forEach((stageRow, row): void => {
       stageRow.forEach((cardSpot, column): void => {
@@ -102,21 +104,21 @@ export class CardStageController {
 
         if (row % 2 === 0) {
           // Even row
-          clickable = (
+          clickable =
             this.stage[row + 1][column].type === 'PLACEHOLDER' &&
-            (this.stage[row + 1][column + 1].type === 'PLACEHOLDER' || column === this.stage[0].length - 1)
-          );
+            (this.stage[row + 1][column + 1].type === 'PLACEHOLDER' ||
+              column === this.stage[0].length - 1);
           return;
         } else {
           // Odd row
-          clickable = (
+          clickable =
             this.stage[row + 1][column].type === 'PLACEHOLDER' &&
-            (this.stage[row + 1][column - 1].type === 'PLACEHOLDER' || column === 0)
-          );
+            (this.stage[row + 1][column - 1].type === 'PLACEHOLDER' ||
+              column === 0);
           return;
         }
-      })
-    })
+      });
+    });
 
     return clickable;
   }
@@ -139,12 +141,35 @@ export class CardStageController {
           // Odd row
           this.revealIfAble(row - 1, column - 1);
         }
-      })
-    })
+      });
+    });
+  }
+
+  public getCard(uid: UUID): Card | undefined {
+    let card: Card | undefined = undefined;
+
+    this.stage.forEach((cardRow): void => {
+      cardRow.forEach((stagePosition): void => {
+        if (
+          stagePosition.type === 'FACE_UP' &&
+          stagePosition.faceUpCard.uid === uid
+        ) {
+          card = stagePosition.faceUpCard;
+        }
+      });
+    });
+
+    return card;
   }
 
   private revealIfAble(row: number, column: number) {
-    if (row < 0 || column < 0 || row >= this.stage.length || column >= this.stage[0].length) return;
+    if (
+      row < 0 ||
+      column < 0 ||
+      row >= this.stage.length ||
+      column >= this.stage[0].length
+    )
+      return;
 
     const card = this.stage[row][column];
     if (card.type === 'PLACEHOLDER' || card.type === 'FACE_UP') return;
@@ -164,6 +189,6 @@ export class CardStageController {
     this.stage[row][column] = {
       type: 'FACE_UP',
       faceUpCard: card.reverse!,
-    }
+    };
   }
 }

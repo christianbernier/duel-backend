@@ -1,6 +1,6 @@
-import {Card} from "../models";
+import { Card } from '../models';
 
-const validTransmissionTypes = ["START_GAME", 'STAGE_CARD_CLICKED'] as const;
+const validTransmissionTypes = ['START_GAME', 'STAGE_CARD_CLICKED'] as const;
 
 export type IncomingTransmissionType = (typeof validTransmissionTypes)[number];
 interface BaseIncomingTransmission {
@@ -8,16 +8,17 @@ interface BaseIncomingTransmission {
 }
 
 export interface StartGameTransmission extends BaseIncomingTransmission {
-  type: "START_GAME";
+  type: 'START_GAME';
 }
 
 export interface StageCardClickedTransmission extends BaseIncomingTransmission {
-  type: "STAGE_CARD_CLICKED";
+  type: 'STAGE_CARD_CLICKED';
   card: Card;
 }
 
 export type ValidIncomingTransmission =
-  StartGameTransmission | StageCardClickedTransmission;
+  | StartGameTransmission
+  | StageCardClickedTransmission;
 
 /**
  * @description Checks whether the incoming transmission is a valid one.
@@ -25,16 +26,16 @@ export type ValidIncomingTransmission =
  * @returns - Whether the transmission is valid.
  */
 export const isValid = (
-  incomingTransmission: unknown
+  incomingTransmission: unknown,
 ): incomingTransmission is ValidIncomingTransmission => {
   if (!incomingTransmission) return false;
-  if (typeof incomingTransmission !== "object") return false;
-  if (!("type" in incomingTransmission)) return false;
-  if (!(typeof incomingTransmission.type === "string")) return false;
+  if (typeof incomingTransmission !== 'object') return false;
+  if (!('type' in incomingTransmission)) return false;
+  if (!(typeof incomingTransmission.type === 'string')) return false;
   if (
     !validTransmissionTypes.find(
       (type: IncomingTransmissionType): boolean =>
-        type === incomingTransmission.type
+        type === incomingTransmission.type,
     )
   )
     return false;
@@ -43,9 +44,9 @@ export const isValid = (
   const keys = Object.keys(incomingTransmission);
 
   switch (type) {
-    case "START_GAME":
-      return keys.length === 1 && keys[0] === "type";
-    case "STAGE_CARD_CLICKED":
+    case 'START_GAME':
+      return keys.length === 1 && keys[0] === 'type';
+    case 'STAGE_CARD_CLICKED':
       return keys.length === 2;
 
     // Exhaustive switch statement. The case below will throw
@@ -53,7 +54,7 @@ export const isValid = (
     // not included in the switch statement.
     default:
       const _: never = type;
-      throw new Error("Invalid transmission type.");
+      throw new Error('Invalid transmission type.');
   }
 
   return true;
@@ -65,9 +66,9 @@ export const isValid = (
  * @throws Error - If the transmission is invalid.
  */
 export function assertValid(
-  incomingTransmission: unknown
+  incomingTransmission: unknown,
 ): asserts incomingTransmission is ValidIncomingTransmission {
   if (!isValid(incomingTransmission)) {
-    throw new Error("Incoming transmission is invalid.");
+    throw new Error('Incoming transmission is invalid.');
   }
 }

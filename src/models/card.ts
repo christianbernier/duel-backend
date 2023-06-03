@@ -1,38 +1,39 @@
-import { BrownResource, GrayResource, Resource } from "./resource";
-import { ScienceType } from "./science";
-import { CommercialType } from "./commercial";
-import { GuildType } from "./guild";
-import { Age } from "./age";
-import {UUID} from "./uuid";
+import { BrownResource, GrayResource, Resource } from './resource';
+import { ScienceType } from './science';
+import { CommercialType } from './commercial';
+import { GuildType } from './guild';
+import { Age } from './age';
+import { UUID } from './uuid';
+import { GameController } from '../game/game.controller';
 
 export enum CardType {
-  BROWN_PRODUCTION = "BROWN_PRODUCTION",
-  GRAY_PRODUCTION = "GRAY_PRODUCTION",
-  RED_ARMY = "RED_ARMY",
-  GREEN_SCIENCE = "GREEN_SCIENCE",
-  YELLOW_COMMERCIAL = "YELLOW_COMMERCIAL",
-  BLUE_VICTORY = "BLUE_VICTORY",
-  PURPLE_GUILD = "PURPLE_GUILD",
+  BROWN_PRODUCTION = 'BROWN_PRODUCTION',
+  GRAY_PRODUCTION = 'GRAY_PRODUCTION',
+  RED_ARMY = 'RED_ARMY',
+  GREEN_SCIENCE = 'GREEN_SCIENCE',
+  YELLOW_COMMERCIAL = 'YELLOW_COMMERCIAL',
+  BLUE_VICTORY = 'BLUE_VICTORY',
+  PURPLE_GUILD = 'PURPLE_GUILD',
 }
 
 export enum LinkSymbol {
-  HORSESHOE = "HORSESHOE",
-  SWORD = "SWORD",
-  CASTLE = "CASTLE",
-  TARGET = "TARGET",
-  HELMET = "HELMET",
-  BOOK = "BOOK",
-  GEAR = "GEAR",
-  HARP = "HARP",
-  TEA = "TEA",
-  MASK = "MASK",
-  MOON = "MOON",
-  RAIN = "RAIN",
-  COLUMN = "COLUMN",
-  SUN = "SUN",
-  BANK = "BANK",
-  VASE = "VASE",
-  BARREL = "BARREL",
+  HORSESHOE = 'HORSESHOE',
+  SWORD = 'SWORD',
+  CASTLE = 'CASTLE',
+  TARGET = 'TARGET',
+  HELMET = 'HELMET',
+  BOOK = 'BOOK',
+  GEAR = 'GEAR',
+  HARP = 'HARP',
+  TEA = 'TEA',
+  MASK = 'MASK',
+  MOON = 'MOON',
+  RAIN = 'RAIN',
+  COLUMN = 'COLUMN',
+  SUN = 'SUN',
+  BANK = 'BANK',
+  VASE = 'VASE',
+  BARREL = 'BARREL',
 }
 
 type BrownProductionCard = {
@@ -124,6 +125,7 @@ export type Card = {
   name: string;
   faceDown: boolean;
   reverse: FlippedCardType;
+  onBuy?: (game: GameController, purchaserUid: UUID) => void;
 } & (
   | BrownProductionCard
   | GrayProductionCard
@@ -135,23 +137,23 @@ export type Card = {
 );
 
 export enum FlippedCardType {
-  AGE_1 = "AGE_1",
-  AGE_2 = "AGE_2",
-  AGE_3_PINK = "AGE_3_PINK",
-  AGE_3_PURPLE = "AGE_3_PURPLE",
+  AGE_1 = 'AGE_1',
+  AGE_2 = 'AGE_2',
+  AGE_3_PINK = 'AGE_3_PINK',
+  AGE_3_PURPLE = 'AGE_3_PURPLE',
 }
 
 export type CardStage = (
   | {
-      type: "FACE_UP";
+      type: 'FACE_UP';
       faceUpCard: Card;
     }
   | {
-      type: "FACE_DOWN";
+      type: 'FACE_DOWN';
       reverse?: Card;
       faceDownCard?: FlippedCardType;
     }
   | {
-      type: "PLACEHOLDER";
+      type: 'PLACEHOLDER';
     }
 )[][];

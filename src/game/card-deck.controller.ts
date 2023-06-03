@@ -1,5 +1,5 @@
-import {Age, Card, FlippedCardType, Player} from "../models";
-import { Age1Cards, Age2Cards, Age3Cards, GuildCards } from "../fixtures";
+import { Age, Card, FlippedCardType, Player, Resource, UUID } from '../models';
+import { Age1Cards, Age2Cards, Age3Cards, GuildCards } from '../fixtures';
 import { v4 as uuidv4 } from 'uuid';
 
 export class CardDeckController {
@@ -25,7 +25,7 @@ export class CardDeckController {
             ({
               ...card,
               reverse: FlippedCardType.AGE_1,
-            } as Card)
+            } as Card),
         );
         this.cards = this.shuffle(this.cards);
         this.draw();
@@ -38,7 +38,7 @@ export class CardDeckController {
             ({
               ...card,
               reverse: FlippedCardType.AGE_2,
-            } as Card)
+            } as Card),
         );
         this.cards = this.shuffle(this.cards);
         this.draw();
@@ -51,7 +51,7 @@ export class CardDeckController {
             ({
               ...card,
               reverse: FlippedCardType.AGE_3_PINK,
-            } as Card)
+            } as Card),
         );
         this.cards = this.shuffle(this.cards);
         this.draw();
@@ -70,24 +70,22 @@ export class CardDeckController {
         const _: never = age;
     }
 
-    this.cards = this.cards.map((card: Card): Card => ({
-      ...card,
-      faceDown: false,
-      uid: uuidv4(),
-    }))
+    this.cards = this.cards.map(
+      (card: Card): Card => ({
+        ...card,
+        faceDown: false,
+        uid: uuidv4(),
+      }),
+    );
   }
 
   public draw(): Card {
     if (this.cards.length === 0) {
-      throw new Error("There are no more cards in the deck to draw.");
+      throw new Error('There are no more cards in the deck to draw.');
     }
 
     const index = Math.floor(Math.random() * this.deckSize);
     return this.cards.splice(index, 1)[0];
-  }
-
-  public playerCanAfford(player: Player, card: Card): boolean {
-    return true;
   }
 
   private shuffle<T extends Partial<Card> | Card>(deck: T[]): T[] {

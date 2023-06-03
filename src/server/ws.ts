@@ -1,7 +1,7 @@
-import { WebSocket, WebSocketServer as WSS } from "ws";
-import { Server } from "./abstract-server";
-import { IncomingMessage } from "http";
-import { RoomState } from "./rooms";
+import { WebSocket, WebSocketServer as WSS } from 'ws';
+import { Server } from './abstract-server';
+import { IncomingMessage } from 'http';
+import { RoomState } from './rooms';
 
 export const WebSocketServerPort = 8080;
 export class WebSocketServer extends Server {
@@ -9,7 +9,7 @@ export class WebSocketServer extends Server {
   public static readonly Server = new WebSocketServer();
 
   get identifier(): string {
-    return "WS";
+    return 'WS';
   }
 
   private wss: WSS;
@@ -18,38 +18,38 @@ export class WebSocketServer extends Server {
   private constructor() {
     super();
     this.wss = new WSS({ port: WebSocketServerPort });
-    this.log("Init done.");
+    this.log('Init done.');
   }
 
   /**
    * @description Start the server.
    */
   public start() {
-    this.wss.on("connection", (ws: WebSocket, req: IncomingMessage): void => {
+    this.wss.on('connection', (ws: WebSocket, req: IncomingMessage): void => {
       if (!req.url) {
-        this.closeConnectionWithMessage(ws, "Invalid request.");
+        this.closeConnectionWithMessage(ws, 'Invalid request.');
         return;
       }
 
       const url = new URL(`ws://duel${req.url}`);
 
       switch (url.pathname) {
-        case "/join":
-          const roomUid = url.searchParams.get("room");
-          const name = url.searchParams.get("name");
+        case '/join':
+          const roomUid = url.searchParams.get('room');
+          const name = url.searchParams.get('name');
 
           if (!roomUid) {
-            this.closeConnectionWithMessage(ws, "Must include room UID.");
+            this.closeConnectionWithMessage(ws, 'Must include room UID.');
             break;
           }
 
           if (!name) {
-            this.closeConnectionWithMessage(ws, "Must include name.");
+            this.closeConnectionWithMessage(ws, 'Must include name.');
             break;
           }
 
           if (!RoomState.State.doesRoomExist(roomUid)) {
-            this.closeConnectionWithMessage(ws, "Invalid room UID.");
+            this.closeConnectionWithMessage(ws, 'Invalid room UID.');
             break;
           }
 
@@ -58,7 +58,7 @@ export class WebSocketServer extends Server {
           if (controller.playerCount >= 2) {
             this.closeConnectionWithMessage(
               ws,
-              "Too many players are in that room."
+              'Too many players are in that room.',
             );
             break;
           }
@@ -67,7 +67,7 @@ export class WebSocketServer extends Server {
 
           break;
         default:
-          this.closeConnectionWithMessage(ws, "Invalid URL path.");
+          this.closeConnectionWithMessage(ws, 'Invalid URL path.');
       }
     });
 
@@ -75,9 +75,11 @@ export class WebSocketServer extends Server {
   }
 
   private closeConnectionWithMessage(conn: WebSocket, message: string): void {
-    conn.send(JSON.stringify({
-      error: message,
-    }));
+    conn.send(
+      JSON.stringify({
+        error: message,
+      }),
+    );
     conn.close();
   }
 }

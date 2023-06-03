@@ -1,6 +1,6 @@
-import { UUID } from "../models";
-import { v4 as uuidv4 } from "uuid";
-import { Controller } from "../controller";
+import { UUID } from '../models';
+import { v4 as uuidv4 } from 'uuid';
+import { Controller } from '../controller';
 
 export class RoomState {
   // Singleton
@@ -11,7 +11,7 @@ export class RoomState {
   // Prevent further instantiation.
   private constructor() {
     this.rooms = new Map();
-    this.rooms.set("test", new Controller("test"));
+    this.rooms.set('test', new Controller('test'));
   }
 
   /**

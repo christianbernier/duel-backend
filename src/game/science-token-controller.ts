@@ -1,4 +1,4 @@
-import { ScienceProgressToken } from "../models";
+import { ScienceProgressToken } from '../models';
 
 export class ScienceTokenController {
   private allTokens: ScienceProgressToken[];
@@ -19,7 +19,7 @@ export class ScienceTokenController {
 
   public reset() {
     this.allTokens = Object.keys(
-      ScienceProgressToken
+      ScienceProgressToken,
     ) as ScienceProgressToken[];
     this.onBoard = [
       this.nextToken(),
@@ -32,7 +32,7 @@ export class ScienceTokenController {
 
   public getToken(index: number): ScienceProgressToken | null {
     if (index < 0 || index > this.onBoard.length) {
-      throw new Error("Cannot get a token that does not exist.");
+      throw new Error('Cannot get a token that does not exist.');
     }
 
     return this.onBoard[index];
@@ -40,7 +40,7 @@ export class ScienceTokenController {
 
   private nextToken(): ScienceProgressToken {
     if (this.supplyCount === 0) {
-      throw new Error("No more tokens in the supply.");
+      throw new Error('No more tokens in the supply.');
     }
 
     const index = Math.floor(Math.random() * this.supplyCount);
