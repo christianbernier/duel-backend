@@ -1,6 +1,7 @@
 import express = require('express');
 import { Express as ExpressServer, Request, Response } from 'express';
 import { Server } from './abstract-server';
+import { RoomState } from "./rooms";
 const cors = require('cors');
 
 export const RestServerPort = 8081;
@@ -26,8 +27,11 @@ export class RestServer extends Server {
    * @description Start the server.
    */
   public start(): void {
-    this.app.get('/new-room', (req: Request, res: Response): void => {
-      console.log('req req new room :D');
+    this.app.get('/create', (req: Request, res: Response): void => {
+      const newRoomUid = RoomState.State.createRoom();
+      res.send({
+        uid: newRoomUid,
+      });
     });
 
     this.app.listen(RestServerPort);

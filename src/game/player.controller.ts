@@ -4,13 +4,16 @@ import {
   CardType,
   CommercialType,
   GrayResource,
+  GuildType,
   LinkSymbol,
   Player,
   Resource,
   ResourceDiscount,
+  ScienceProgressToken,
+  ScienceType,
   UUID,
-  Wonder,
-} from '../models';
+  Wonder
+} from "../models";
 
 export class PlayerController {
   private readonly player: Player;
@@ -79,10 +82,106 @@ export class PlayerController {
     return linkSymbols;
   }
 
+  public get uniqueScienceSymbols(): ScienceType[] {
+    const symbols: ScienceType[] = [];
+
+    this.player.cards.forEach((card: Card): void => {
+      if (
+        card.cardType === CardType.GREEN_SCIENCE &&
+        !symbols.includes(card.scienceType)
+      ) {
+        symbols.push(card.scienceType);
+      }
+    });
+
+    if (this.player.scienceTokens.includes(ScienceProgressToken.LAW)) {
+      symbols.push(ScienceType.LAW);
+    }
+
+    return symbols;
+  }
+
   public get wondersClaimed(): Wonder[] {
     return this.player.wonders.filter(
       (wonder: Wonder): boolean => wonder.claimedWith !== null,
     );
+  }
+
+  public get victoryPoints(): number {
+    let total = 0;
+
+    // Building points
+    this.player.cards.forEach((card: Card): void => {
+      switch (card.cardType) {
+        case CardType.BLUE_VICTORY: {
+          total += card.victoryPoints;
+          break;
+        }
+        case CardType.GREEN_SCIENCE: {
+          total += card.victoryPoints;
+          break;
+        }
+        case CardType.YELLOW_COMMERCIAL: {
+          if ('victoryPoints' in card) {
+            total += card.victoryPoints;
+          }
+          break;
+        }
+        case CardType.PURPLE_GUILD: {
+          switch (card.guildType) {
+            case GuildType.VICTORY_POINTS_PER_COINS: {
+              total += card.victoryPoints * Math.floor(this.player.coins / card.coins);
+              break;
+            }
+
+            case GuildType.VICTORY_POINTS_PER_WONDER: {
+              total += card.victoryPoints * this.wondersClaimed.length;
+              break;
+            }
+
+            case GuildType.VICTORY_POINTS_AND_COINS_PER_CARD_TYPE: {
+              card.guildCardTypes.forEach((cardType: CardType): void => {
+                total += card.victoryPoints * this.cardTypeCount(cardType);
+              })
+              break;
+            }
+          }
+          break;
+        }
+      }
+    })
+
+    // Wonder points
+    // TODO
+
+    // Science token points
+    this.player.scienceTokens.forEach((token: ScienceProgressToken): void => {
+      let value;
+
+      switch (token) {
+        case ScienceProgressToken.AGRICULTURE: {
+          value = 4;
+          break;
+        }
+        case ScienceProgressToken.MATHEMATICS: {
+          value = this.player.scienceTokens.length * 3;
+          break;
+        }
+        case ScienceProgressToken.PHILOSOPHY: {
+          value = 7;
+          break;
+        }
+        default:
+          value = 0;
+      }
+
+      total += value;
+    });
+
+    // Treasury points
+    total += Math.floor(this.player.coins / 3);
+
+    return total;
   }
 
   public constructor(player: Pick<Player, 'uid' | 'conn' | 'name' | 'player'>) {

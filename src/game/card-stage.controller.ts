@@ -24,6 +24,20 @@ export class CardStageController {
     });
   }
 
+  public get isEmpty(): boolean {
+    let empty = true;
+
+    this.stage.forEach((stageRow) =>
+      stageRow.forEach((stagePlace) => {
+        if (stagePlace.type !== 'PLACEHOLDER') {
+          empty = false;
+        }
+      }),
+    );
+
+    return empty;
+  }
+
   public constructor(private cards: CardDeckController) {
     this.stage = [];
   }

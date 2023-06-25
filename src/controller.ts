@@ -154,6 +154,11 @@ export class Controller {
   }
 
   private cardClicked(card: Card, playerUid: UUID): void {
+    if (!this.game.isTurn(playerUid)) {
+      this.sendErrorToPlayer(playerUid, 'It is not your turn.');
+      return;
+    }
+
     try {
       this.game.clickedCard(card, playerUid);
     } catch (e) {

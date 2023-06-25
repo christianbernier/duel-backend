@@ -5,8 +5,6 @@ import {
   GameState,
   Player,
   Resource,
-  ScienceProgressToken,
-  ScienceType,
   UUID,
 } from '../models';
 import { WarController } from './war.controller';
@@ -24,6 +22,7 @@ export interface IGameController {
 export class GameController implements IGameController {
   private playerA: PlayerController | null;
   private playerB: PlayerController | null;
+  private turn: 'A' | 'B';
   private gameStarted: boolean;
   private age: Age | null;
   private readonly war: WarController;
@@ -60,6 +59,7 @@ export class GameController implements IGameController {
       roomUid: this.roomUid,
       playerA: this.playerA ? this.playerA.sanitized : null,
       playerB: this.playerB ? this.playerB.sanitized : null,
+      turn: this.turn,
       inProgress: this.gameStarted,
       cardStage: this.cardStage.sanitized,
       warStatus: this.war.status,
@@ -70,6 +70,7 @@ export class GameController implements IGameController {
   public constructor(private roomUid: UUID) {
     this.playerA = null;
     this.playerB = null;
+    this.turn = 'A';
     this.gameStarted = false;
     this.age = null;
     this.war = new WarController();
@@ -101,11 +102,47 @@ export class GameController implements IGameController {
 
   public reset(): void {
     this.gameStarted = true;
+    this.turn = 'A';
     this.age = Age.AGE_1;
     this.war.reset();
     this.scienceTokens.reset();
     this.cards.reset(this.age);
     this.cardStage.set(this.age);
+  }
+
+  public isGameOver(): boolean {
+    return this.winner() === null;
+  }
+
+  public winner(): 'A' | 'B' | 'Tie' | null {
+    if (!this.playerA || !this.playerB) {
+      return null;
+    }
+
+    if (this.war.status === 'A_VICTORY') {
+      return 'A';
+    } else if (this.war.status === 'B_VICTORY') {
+      return 'B';
+    } else if (this.playerA.uniqueScienceSymbols.length >= 6) {
+      return 'A';
+    } else if (this.playerB.uniqueScienceSymbols.length >= 6) {
+      return 'B';
+    } else if (this.age === Age.AGE_3 && this.cardStage.isEmpty) {
+      const victoryPointsA =
+        this.playerA.victoryPoints + this.war.getVictoryPointsForPlayer('A');
+      const victoryPointsB =
+        this.playerB.victoryPoints + this.war.getVictoryPointsForPlayer('B');
+
+      if (victoryPointsA === victoryPointsB) {
+        return 'Tie';
+      } else if (victoryPointsA > victoryPointsB) {
+        return 'A';
+      } else {
+        return 'B';
+      }
+    }
+
+    return null;
   }
 
   public nextAge(): void {
@@ -149,6 +186,14 @@ export class GameController implements IGameController {
     }
 
     return null;
+  }
+
+  public isTurn(playerUid: UUID): boolean {
+    if (this.turn === 'A') {
+      return this.playerA?.uid === playerUid;
+    } else {
+      return this.playerB?.uid === playerUid;
+    }
   }
 
   public clickedCard(cardClicked: Pick<Card, 'uid'>, playerUid: UUID): void {

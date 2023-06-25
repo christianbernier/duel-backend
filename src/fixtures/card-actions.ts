@@ -42,7 +42,7 @@ export const onBuyCoinsPerCardTypeCard = (
         cardType,
         coinsPerCardType,
       );
-    })
+    });
   };
 };
 

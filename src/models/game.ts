@@ -8,6 +8,7 @@ export type GameState = {
   inProgress: boolean;
   playerA: Partial<Player> | null;
   playerB: Partial<Player> | null;
+  turn: 'A' | 'B';
   cardStage: CardStage;
   warStatus: number | 'A_VICTORY' | 'B_VICTORY';
   scienceTokens: (ScienceProgressToken | null)[];

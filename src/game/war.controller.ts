@@ -24,4 +24,28 @@ export class WarController {
       this._status = 'B_VICTORY';
     }
   }
+
+  public getVictoryPointsForPlayer(player: 'A' | 'B'): number {
+    if (this._status === 'A_VICTORY' || this._status === 'B_VICTORY') return 0;
+
+    if (player === 'A') {
+      if (this._status >= 6) {
+        return 10;
+      } else if (this._status >= 3) {
+        return 5;
+      } else if (this._status >= 1) {
+        return 2;
+      }
+    } else if (player === 'B') {
+      if (this._status <= -6) {
+        return 10;
+      } else if (this._status <= -3) {
+        return 5;
+      } else if (this._status <= -1) {
+        return 2;
+      }
+    }
+
+    return 0;
+  }
 }

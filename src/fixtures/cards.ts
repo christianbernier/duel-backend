@@ -7,9 +7,9 @@ import {
   GrayResource,
   GuildType,
   LinkSymbol,
-  ScienceType
-} from "../models";
-import * as CardActions from "./card-actions";
+  ScienceType,
+} from '../models';
+import * as CardActions from './card-actions';
 
 export const Age1Cards: Partial<Card>[] = [
   {
@@ -696,7 +696,11 @@ export const GuildCards: Partial<Card>[] = [
     coins: 1,
     victoryPoints: 1,
     reverse: FlippedCardType.AGE_3_PURPLE,
-    onBuy: CardActions.onBuyCoinsPerCardTypeCard(1, CardType.BROWN_PRODUCTION, CardType.GRAY_PRODUCTION),
+    onBuy: CardActions.onBuyCoinsPerCardTypeCard(
+      1,
+      CardType.BROWN_PRODUCTION,
+      CardType.GRAY_PRODUCTION,
+    ),
   },
   {
     name: "Builder's Guild",
