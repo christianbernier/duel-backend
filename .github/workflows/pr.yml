@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  new-pr:
+  lint-and-build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,4 +32,4 @@ jobs:
         run: npm run lint
 
       - name: Build
-        run: npm run build
+        run: npm run build:prod
