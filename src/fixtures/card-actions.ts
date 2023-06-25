@@ -1,11 +1,5 @@
 import { GameController } from '../game/game.controller';
-import {
-  CardType,
-  Resource,
-  ScienceProgressToken,
-  ScienceType,
-  UUID,
-} from '../models';
+import { CardType, Resource, UUID } from '../models';
 
 export const onBuyArmyCard = (
   armyPoints: number,

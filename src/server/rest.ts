@@ -1,8 +1,8 @@
 import express = require('express');
 import { Express as ExpressServer, Request, Response } from 'express';
 import { Server } from './abstract-server';
-import { RoomState } from "./rooms";
-const cors = require('cors');
+import { RoomState } from './rooms';
+import cors from 'cors';
 
 export const RestServerPort = 8081;
 export class RestServer extends Server {

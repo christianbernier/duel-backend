@@ -43,6 +43,7 @@ export class RoomState {
       throw new Error(`Room with UID ${uid} does not exist.`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.rooms.get(uid)!;
   }
 }

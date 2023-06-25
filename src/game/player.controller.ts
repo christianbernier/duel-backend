@@ -12,8 +12,8 @@ import {
   ScienceProgressToken,
   ScienceType,
   UUID,
-  Wonder
-} from "../models";
+  Wonder,
+} from '../models';
 
 export class PlayerController {
   private readonly player: Player;
@@ -130,7 +130,8 @@ export class PlayerController {
         case CardType.PURPLE_GUILD: {
           switch (card.guildType) {
             case GuildType.VICTORY_POINTS_PER_COINS: {
-              total += card.victoryPoints * Math.floor(this.player.coins / card.coins);
+              total +=
+                card.victoryPoints * Math.floor(this.player.coins / card.coins);
               break;
             }
 
@@ -142,14 +143,14 @@ export class PlayerController {
             case GuildType.VICTORY_POINTS_AND_COINS_PER_CARD_TYPE: {
               card.guildCardTypes.forEach((cardType: CardType): void => {
                 total += card.victoryPoints * this.cardTypeCount(cardType);
-              })
+              });
               break;
             }
           }
           break;
         }
       }
-    })
+    });
 
     // Wonder points
     // TODO

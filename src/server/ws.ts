@@ -34,7 +34,7 @@ export class WebSocketServer extends Server {
       const url = new URL(`ws://duel${req.url}`);
 
       switch (url.pathname) {
-        case '/join':
+        case '/join': {
           const roomUid = url.searchParams.get('room');
           const name = url.searchParams.get('name');
 
@@ -64,10 +64,11 @@ export class WebSocketServer extends Server {
           }
 
           controller.onConnect(name, ws);
-
           break;
-        default:
+        }
+        default: {
           this.closeConnectionWithMessage(ws, 'Invalid URL path.');
+        }
       }
     });
 

@@ -21,7 +21,7 @@ export class CardStageController {
             return cardPlace;
         }
       });
-    });
+    }) as CardStage;
   }
 
   public get isEmpty(): boolean {
@@ -56,11 +56,13 @@ export class CardStageController {
       case Age.AGE_3:
         stagePattern = Age3CardStage;
         break;
-      default:
+      default: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const _: never = age;
+      }
     }
 
-    stagePattern.forEach((cardTemplate: string, a): void => {
+    stagePattern.forEach((cardTemplate: string): void => {
       const cardStageRow: (
         | {
             type: 'FACE_UP';
@@ -75,7 +77,7 @@ export class CardStageController {
           }
       )[] = [];
 
-      cardTemplate.split('').forEach((cardType: string, b): void => {
+      cardTemplate.split('').forEach((cardType: string): void => {
         switch (cardType) {
           case 'U':
             cardStageRow.push({
@@ -202,7 +204,7 @@ export class CardStageController {
 
     this.stage[row][column] = {
       type: 'FACE_UP',
-      faceUpCard: card.reverse!,
+      faceUpCard: card.reverse,
     };
   }
 }

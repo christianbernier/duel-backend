@@ -1,4 +1,4 @@
-import { Age, Card, FlippedCardType, Player, Resource, UUID } from '../models';
+import { Age, Card, FlippedCardType } from '../models';
 import { Age1Cards, Age2Cards, Age3Cards, GuildCards } from '../fixtures';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,7 +19,7 @@ export class CardDeckController {
 
   public reset(age: Age) {
     switch (age) {
-      case Age.AGE_1:
+      case Age.AGE_1: {
         this.cards = Age1Cards.map(
           (card: Partial<Card>): Card =>
             ({
@@ -32,7 +32,8 @@ export class CardDeckController {
         this.draw();
         this.draw(); // remove 3 cards from the deck
         break;
-      case Age.AGE_2:
+      }
+      case Age.AGE_2: {
         this.cards = Age2Cards.map(
           (card: Partial<Card>): Card =>
             ({
@@ -45,7 +46,8 @@ export class CardDeckController {
         this.draw();
         this.draw(); // remove 3 cards from the deck
         break;
-      case Age.AGE_3:
+      }
+      case Age.AGE_3: {
         this.cards = Age3Cards.map(
           (card: Partial<Card>): Card =>
             ({
@@ -66,8 +68,11 @@ export class CardDeckController {
         ];
         this.cards = this.shuffle(this.cards);
         break;
-      default:
+      }
+      default: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const _: never = age;
+      }
     }
 
     this.cards = this.cards.map(

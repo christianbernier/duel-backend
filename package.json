@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --ext .ts --fix --max-warnings=0",
     "serve:dev": "npx nodemon",
     "serve:prod": "npm run build:prod && node build/app.js",
     "build:prod": "rimraf ./build && tsc"

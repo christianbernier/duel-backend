@@ -1,13 +1,5 @@
 import { MessageEvent, WebSocket } from 'ws';
-import {
-  Age,
-  Card,
-  CardStage,
-  GameState,
-  Player,
-  ScienceProgressToken,
-  UUID,
-} from './models';
+import { Card, Player, UUID } from './models';
 import { v4 as uuidv4 } from 'uuid';
 import {
   assertValid,
@@ -94,9 +86,11 @@ export class Controller {
         case 'STAGE_CARD_CLICKED':
           this.cardClicked(transmission.card, playerUid);
           break;
-        default:
+        default: {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const _: never = transmission;
           throw new Error('Missing receive logic in controller.');
+        }
       }
     }
   }

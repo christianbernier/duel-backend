@@ -2,7 +2,6 @@ import { BrownResource, GrayResource, Resource } from './resource';
 import { ScienceType } from './science';
 import { CommercialType } from './commercial';
 import { GuildType } from './guild';
-import { Age } from './age';
 import { UUID } from './uuid';
 import { GameController } from '../game/game.controller';
 
@@ -150,7 +149,7 @@ export type CardStage = (
     }
   | {
       type: 'FACE_DOWN';
-      reverse?: Card;
+      reverse: Card;
       faceDownCard?: FlippedCardType;
     }
   | {

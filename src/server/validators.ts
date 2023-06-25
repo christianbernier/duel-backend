@@ -52,9 +52,11 @@ export const isValid = (
     // Exhaustive switch statement. The case below will throw
     // a type error if a value of IncomingTransmissionType is
     // not included in the switch statement.
-    default:
+    default: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _: never = type;
       throw new Error('Invalid transmission type.');
+    }
   }
 
   return true;
