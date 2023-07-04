@@ -10,6 +10,7 @@ import {
 import { TransmissionListener } from '../models/transmission';
 import {
   StageCardClickedTransmission,
+  StageCardDiscardedTransmission,
   ValidIncomingTransmission,
 } from '../server/validators';
 import { CardDeckController } from './card-deck.controller';
@@ -39,19 +40,7 @@ export class GameController {
     this.roomUid = roomUid;
     this.playerA = new PlayerController({ ...playerA, player: 'A' });
     this.playerB = new PlayerController({ ...playerB, player: 'B' });
-    this.turn = new TurnController(this.playerA.uid, this.playerB.uid, () => {
-      addListener({
-        on: 'STAGE_CARD_CLICKED',
-        do: (transmission: ValidIncomingTransmission, playerUid: UUID) => {
-          const cardClickedTransmission =
-            transmission as StageCardClickedTransmission;
-          this.onCardClicked(cardClickedTransmission.card, playerUid);
-          this.turn.toggle();
-        },
-        times: 1,
-        additionalCheck: this.turn.confirmTrun(),
-      });
-    });
+    this.turn = new TurnController(this.playerA.uid, this.playerB.uid);
     this.war = new WarController();
     this.scienceTokens = new ScienceTokenController();
     this.cardDeck = new CardDeckController();
@@ -63,6 +52,28 @@ export class GameController {
     this.scienceTokens.reset();
     this.cardDeck.reset(this.age);
     this.cardStage.set(this.age);
+
+    addListener({
+      on: 'STAGE_CARD_CLICKED',
+      do: (transmission: ValidIncomingTransmission, playerUid: UUID) => {
+        const cardClickedTransmission =
+          transmission as StageCardClickedTransmission;
+        this.onCardClicked(cardClickedTransmission.card, playerUid);
+        this.turn.toggle();
+      },
+      additionalCheck: this.turn.confirmTrun(),
+    });
+
+    addListener({
+      on: 'STAGE_CARD_DISCARDED',
+      do: (transmission: ValidIncomingTransmission, playerUid: UUID) => {
+        const cardClickedTransmission =
+          transmission as StageCardDiscardedTransmission;
+        this.onCardDiscarded(cardClickedTransmission.card, playerUid);
+        this.turn.toggle();
+      },
+      additionalCheck: this.turn.confirmTrun(),
+    });
   }
 
   public get state(): GameState {
@@ -71,7 +82,7 @@ export class GameController {
       playerA: this.playerA.sanitized,
       playerB: this.playerB.sanitized,
       turn: this.turn.asLetter(),
-      inProgress: this.getWinner() !== null,
+      inProgress: true,
       cardStage: this.cardStage.sanitized,
       warStatus: this.war.status,
       scienceTokens: this.scienceTokens.board,
@@ -176,6 +187,30 @@ export class GameController {
         card.onBuy(this, playerUid);
       }
     }
+  }
+
+  public onCardDiscarded(
+    cardClicked: Pick<Card, 'uid'>,
+    playerUid: UUID,
+  ): void {
+    const card = this.cardStage.getCard(cardClicked.uid);
+
+    if (!card) {
+      throw new Error('Cannot find that card.');
+    }
+
+    if (!this.cardStage.isClickable(card)) {
+      throw new Error('Cannot click that card.');
+    }
+
+    const player = this.getPlayer(playerUid);
+    const otherPlayer = this.getOtherPlayer(playerUid);
+
+    const coins = 2 + otherPlayer.cardTypeCount(CardType.YELLOW_COMMERCIAL);
+
+    this.cardStage.discard(card);
+
+    player.giveCoins(coins);
   }
 
   public processArmyPoints(playerUid: UUID, points: number): void {

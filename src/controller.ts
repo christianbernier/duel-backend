@@ -164,7 +164,7 @@ export class Controller {
           listener.do.call(this, data, playerUid);
           typesHandled.push(listener.on);
 
-          if (--listener.times === 0) {
+          if (listener.times && --listener.times === 0) {
             this.listeners.splice(index, 1);
           }
 

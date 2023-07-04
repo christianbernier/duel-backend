@@ -4,6 +4,7 @@ import { Age1CardStage, Age2CardStage, Age3CardStage } from '../fixtures';
 
 export class CardStageController {
   private stage: CardStage;
+  private readonly discarded: Card[];
 
   public get sanitized(): CardStage {
     return this.stage.map((cardStageRow) => {
@@ -40,6 +41,7 @@ export class CardStageController {
 
   public constructor(private cards: CardDeckController) {
     this.stage = [];
+    this.discarded = [];
   }
 
   public set(age: Age) {
@@ -157,6 +159,11 @@ export class CardStageController {
         }
       });
     });
+  }
+
+  public discard(card: Card): void {
+    this.discarded.push(card);
+    this.remove(card);
   }
 
   public getCard(uid: UUID): Card | undefined {
