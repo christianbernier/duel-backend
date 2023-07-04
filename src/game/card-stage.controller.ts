@@ -106,8 +106,6 @@ export class CardStageController {
   public isClickable(card: Card): boolean {
     let clickable = false;
 
-    console.log('isclickable', card);
-
     this.stage.forEach((stageRow, row): void => {
       stageRow.forEach((cardSpot, column): void => {
         if (cardSpot.type !== 'FACE_UP') return;
