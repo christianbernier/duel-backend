@@ -1,6 +1,10 @@
 import { Card } from '../models';
 
-const validTransmissionTypes = ['START_GAME', 'STAGE_CARD_CLICKED'] as const;
+const validTransmissionTypes = [
+  'START_GAME',
+  'STAGE_CARD_CLICKED',
+  'STAGE_CARD_DISCARDED',
+] as const;
 
 export type IncomingTransmissionType = (typeof validTransmissionTypes)[number];
 interface BaseIncomingTransmission {
@@ -16,9 +20,16 @@ export interface StageCardClickedTransmission extends BaseIncomingTransmission {
   card: Card;
 }
 
+export interface StageCardDiscardedTransmission
+  extends BaseIncomingTransmission {
+  type: 'STAGE_CARD_DISCARDED';
+  card: Card;
+}
+
 export type ValidIncomingTransmission =
   | StartGameTransmission
-  | StageCardClickedTransmission;
+  | StageCardClickedTransmission
+  | StageCardDiscardedTransmission;
 
 /**
  * @description Checks whether the incoming transmission is a valid one.
@@ -47,6 +58,8 @@ export const isValid = (
     case 'START_GAME':
       return keys.length === 1 && keys[0] === 'type';
     case 'STAGE_CARD_CLICKED':
+      return keys.length === 2;
+    case 'STAGE_CARD_DISCARDED':
       return keys.length === 2;
 
     // Exhaustive switch statement. The case below will throw
