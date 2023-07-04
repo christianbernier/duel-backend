@@ -55,15 +55,7 @@ export class WebSocketServer extends Server {
 
           const controller = RoomState.State.getRoom(roomUid);
 
-          if (controller.playerCount >= 2) {
-            this.closeConnectionWithMessage(
-              ws,
-              'Too many players are in that room.',
-            );
-            break;
-          }
-
-          controller.onConnect(name, ws);
+          controller.onConnection(ws, name);
           break;
         }
         default: {

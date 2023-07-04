@@ -7,118 +7,97 @@ import {
   Resource,
   UUID,
 } from '../models';
-import { WarController } from './war.controller';
-import { ScienceTokenController } from './science-token-controller';
+import { TransmissionListener } from '../models/transmission';
+import {
+  StageCardClickedTransmission,
+  ValidIncomingTransmission,
+} from '../server/validators';
 import { CardDeckController } from './card-deck.controller';
 import { CardStageController } from './card-stage.controller';
 import { PlayerController } from './player.controller';
+import { ScienceTokenController } from './science-token-controller';
+import { TurnController } from './turn.controller';
+import { WarController } from './war.controller';
 
-export interface IGameController {
-  state: GameState;
-  reset(): void;
-  nextAge(): void;
-}
-
-export class GameController implements IGameController {
-  private playerA: PlayerController | null;
-  private playerB: PlayerController | null;
-  private turn: 'A' | 'B';
-  private gameStarted: boolean;
-  private age: Age | null;
+export class GameController {
+  private readonly roomUid: UUID;
+  private readonly playerA: PlayerController;
+  private readonly playerB: PlayerController;
+  private readonly turn: TurnController;
   private readonly war: WarController;
   private readonly scienceTokens: ScienceTokenController;
-  private readonly cards: CardDeckController;
+  private readonly cardDeck: CardDeckController;
   private readonly cardStage: CardStageController;
+  private age: Age;
 
-  public get playerCount(): number {
-    let count = 0;
-    if (this.playerA) {
-      count++;
-    }
-    if (this.playerB) {
-      count++;
-    }
-    return count;
-  }
+  public constructor(
+    roomUid: UUID,
+    playerA: Pick<Player, 'uid' | 'conn' | 'name'>,
+    playerB: Pick<Player, 'uid' | 'conn' | 'name'>,
+    addListener: (listener: TransmissionListener) => void,
+  ) {
+    this.roomUid = roomUid;
+    this.playerA = new PlayerController({ ...playerA, player: 'A' });
+    this.playerB = new PlayerController({ ...playerB, player: 'B' });
+    this.turn = new TurnController(this.playerA.uid, this.playerB.uid, () => {
+      addListener({
+        on: 'STAGE_CARD_CLICKED',
+        do: (transmission: ValidIncomingTransmission, playerUid: UUID) => {
+          const cardClickedTransmission =
+            transmission as StageCardClickedTransmission;
+          this.onCardClicked(cardClickedTransmission.card, playerUid);
+          this.turn.toggle();
+        },
+        times: 1,
+        additionalCheck: this.turn.confirmTrun(),
+      });
+    });
+    this.war = new WarController();
+    this.scienceTokens = new ScienceTokenController();
+    this.cardDeck = new CardDeckController();
+    this.cardStage = new CardStageController(this.cardDeck);
+    this.age = Age.AGE_1;
 
-  public get nextPlayerAssignment(): 'A' | 'B' {
-    return this.playerA ? 'B' : 'A';
-  }
-
-  public get players(): Player[] {
-    const p = [];
-
-    if (this.playerA) p.push(this.playerA.asPlayer);
-    if (this.playerB) p.push(this.playerB.asPlayer);
-
-    return p;
+    this.turn.reset();
+    this.war.reset();
+    this.scienceTokens.reset();
+    this.cardDeck.reset(this.age);
+    this.cardStage.set(this.age);
   }
 
   public get state(): GameState {
     return {
       roomUid: this.roomUid,
-      playerA: this.playerA ? this.playerA.sanitized : null,
-      playerB: this.playerB ? this.playerB.sanitized : null,
-      turn: this.turn,
-      inProgress: this.gameStarted,
+      playerA: this.playerA.sanitized,
+      playerB: this.playerB.sanitized,
+      turn: this.turn.asLetter(),
+      inProgress: this.getWinner() !== null,
       cardStage: this.cardStage.sanitized,
       warStatus: this.war.status,
       scienceTokens: this.scienceTokens.board,
     };
   }
 
-  public constructor(private roomUid: UUID) {
-    this.playerA = null;
-    this.playerB = null;
-    this.turn = 'A';
-    this.gameStarted = false;
-    this.age = null;
-    this.war = new WarController();
-    this.scienceTokens = new ScienceTokenController();
-    this.cards = new CardDeckController();
-    this.cardStage = new CardStageController(this.cards);
-  }
-
-  public playerJoined(player: Pick<Player, 'uid' | 'conn' | 'name'>): void {
-    const newPlayer: Pick<Player, 'uid' | 'conn' | 'name' | 'player'> = {
-      ...player,
-      player: this.nextPlayerAssignment,
-    };
-
-    if (this.nextPlayerAssignment === 'A') {
-      this.playerA = new PlayerController(newPlayer);
-    } else {
-      this.playerB = new PlayerController(newPlayer);
+  public nextAge(): void {
+    switch (this.age) {
+      case Age.AGE_1: {
+        this.age = Age.AGE_2;
+        break;
+      }
+      case Age.AGE_2: {
+        this.age = Age.AGE_3;
+        break;
+      }
+      default: {
+        throw new Error('No more ages.');
+      }
     }
-  }
 
-  public playerLeft(uid: UUID): void {
-    if (this.playerA?.uid === uid) {
-      this.playerA = null;
-    } else if (this.playerB?.uid === uid) {
-      this.playerB = null;
-    }
-  }
-
-  public reset(): void {
-    this.gameStarted = true;
-    this.turn = 'A';
-    this.age = Age.AGE_1;
-    this.war.reset();
-    this.scienceTokens.reset();
-    this.cards.reset(this.age);
+    this.cardDeck.reset(this.age);
     this.cardStage.set(this.age);
   }
 
-  public isGameOver(): boolean {
-    return this.winner() === null;
-  }
-
-  public winner(): 'A' | 'B' | 'Tie' | null {
-    if (!this.playerA || !this.playerB) {
-      return null;
-    }
-
+  public getWinner(): 'A' | 'B' | 'Tie' | null {
     if (this.war.status === 'A_VICTORY') {
       return 'A';
     } else if (this.war.status === 'B_VICTORY') {
@@ -145,58 +124,15 @@ export class GameController implements IGameController {
     return null;
   }
 
-  public nextAge(): void {
-    switch (this.age) {
-      case Age.AGE_1: {
-        this.age = Age.AGE_2;
-        break;
-      }
-      case Age.AGE_2: {
-        this.age = Age.AGE_3;
-        break;
-      }
-      default: {
-        throw new Error('No more ages.');
-      }
-    }
-
-    this.cards.reset(this.age);
-    this.cardStage.set(this.age);
+  public getPlayer(playerUid: UUID): PlayerController {
+    return playerUid === this.playerA.uid ? this.playerA : this.playerB;
   }
 
-  public findPlayer(playerUid: UUID): PlayerController | undefined {
-    if (this.playerA?.uid === playerUid) {
-      return this.playerA;
-    } else if (this.playerB?.uid === playerUid) {
-      return this.playerB;
-    }
-
-    return undefined;
+  public getOtherPlayer(playerUid: UUID): PlayerController {
+    return playerUid === this.playerB.uid ? this.playerA : this.playerB;
   }
 
-  public otherPlayer(playerUid: UUID): PlayerController | null {
-    const player = this.findPlayer(playerUid);
-
-    if (player === undefined) {
-      return null;
-    } else if (player.uid === this.playerA?.uid) {
-      return this.playerB;
-    } else if (player.uid === this.playerB?.uid) {
-      return this.playerA;
-    }
-
-    return null;
-  }
-
-  public isTurn(playerUid: UUID): boolean {
-    if (this.turn === 'A') {
-      return this.playerA?.uid === playerUid;
-    } else {
-      return this.playerB?.uid === playerUid;
-    }
-  }
-
-  public clickedCard(cardClicked: Pick<Card, 'uid'>, playerUid: UUID): void {
+  public onCardClicked(cardClicked: Pick<Card, 'uid'>, playerUid: UUID): void {
     const card = this.cardStage.getCard(cardClicked.uid);
 
     if (!card) {
@@ -207,10 +143,8 @@ export class GameController implements IGameController {
       throw new Error('Cannot click that card.');
     }
 
-    const player = this.findPlayer(playerUid);
-    const otherPlayer = this.otherPlayer(playerUid);
-
-    if (!player || !otherPlayer) return;
+    const player = this.getPlayer(playerUid);
+    const otherPlayer = this.getOtherPlayer(playerUid);
 
     // There are three ways to buy cards:
     // - Outright (the player can afford it)
@@ -239,17 +173,14 @@ export class GameController implements IGameController {
       // Some cards have special effects that need to
       // be triggered here if they are bought.
       if (card.onBuy) {
-        console.log('on buy');
         card.onBuy(this, playerUid);
       }
     }
   }
 
   public processArmyPoints(playerUid: UUID, points: number): void {
-    const player = this.findPlayer(playerUid);
-    const otherPlayer = this.otherPlayer(playerUid);
-
-    if (!player || !otherPlayer) return;
+    const player = this.getPlayer(playerUid);
+    const otherPlayer = this.getOtherPlayer(playerUid);
 
     let multiplier = 1;
     if (player.asPlayer.player === 'A') {
@@ -265,9 +196,7 @@ export class GameController implements IGameController {
   }
 
   public applyResourceDiscount(playerUid: UUID, resources: Resource[]): void {
-    const player = this.findPlayer(playerUid);
-
-    if (!player) return;
+    const player = this.getPlayer(playerUid);
 
     resources.forEach((resource: Resource): void => {
       player.applyResourceDiscount(resource, 1);
@@ -275,11 +204,7 @@ export class GameController implements IGameController {
   }
 
   public processCoinCard(playerUid: UUID, coins: number): void {
-    const player = this.findPlayer(playerUid);
-
-    if (!player) return;
-
-    player.giveCoins(coins);
+    this.getPlayer(playerUid).giveCoins(coins);
   }
 
   public processCoinsPerCardTypeCard(
@@ -287,9 +212,7 @@ export class GameController implements IGameController {
     cardType: CardType,
     coinsPerCardType: number,
   ): void {
-    const player = this.findPlayer(playerUid);
-
-    if (!player) return;
+    const player = this.getPlayer(playerUid);
 
     player.giveCoins(player.cardTypeCount(cardType) * coinsPerCardType);
   }
@@ -298,9 +221,7 @@ export class GameController implements IGameController {
     playerUid: UUID,
     coinsPerWonder: number,
   ): void {
-    const player = this.findPlayer(playerUid);
-
-    if (!player) return;
+    const player = this.getPlayer(playerUid);
 
     player.giveCoins(player.wondersClaimed.length * coinsPerWonder);
   }

@@ -1,165 +1,216 @@
-import { MessageEvent, WebSocket } from 'ws';
-import { Card, Player, UUID } from './models';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  assertValid,
-  isValid,
-  ValidIncomingTransmission,
-} from './server/validators';
+import WebSocket, { MessageEvent } from 'ws';
 import { GameController } from './game/game.controller';
+import { GameState, Player, UUID } from './models';
+import { TransmissionListener } from './models/transmission';
+import { v4 as uuidv4 } from 'uuid';
+import { ValidIncomingTransmission, assertValid } from './server/validators';
 
 export class Controller {
-  private readonly uid: UUID;
-  private readonly game: GameController;
+  private readonly roomUid: UUID;
+  private game: GameController | null;
+  private listeners: TransmissionListener[];
 
-  public constructor(uid: UUID) {
-    this.uid = uid;
-    this.game = new GameController(uid);
-  }
+  private playerA: Pick<Player, 'uid' | 'conn' | 'name'> | null;
+  private playerB: Pick<Player, 'uid' | 'conn' | 'name'> | null;
 
-  public get playerCount(): number {
-    return this.game.playerCount;
-  }
+  public constructor(roomUid: UUID) {
+    this.roomUid = roomUid;
+    this.game = null;
+    this.listeners = [];
+    this.playerA = null;
+    this.playerB = null;
 
-  public onConnect(name: string, conn: WebSocket): void {
-    if (this.playerCount >= 2) {
-      throw new Error('Too many players!');
-    }
-
-    const uid = uuidv4();
-
-    this.game.playerJoined({
-      uid,
-      conn,
-      name,
+    this.listeners.push({
+      on: 'START_GAME',
+      do: this.startGame,
+      times: 1,
+      additionalCheck: (): boolean => !!this.playerA && !!this.playerB,
     });
-
-    this.broadcastStateUpdate();
-
-    conn.onclose = () => this.onDisconnect(uid);
-    conn.onmessage = (event: MessageEvent) => {
-      let data: ValidIncomingTransmission;
-
-      try {
-        data = JSON.parse(event.data as string);
-        assertValid(data);
-      } catch (e) {
-        this.sendErrorToPlayer(uid, 'Message type is not recognized.');
-        return;
-      }
-
-      try {
-        this.onReceive(uid, data);
-      } catch (e) {
-        this.sendErrorToPlayer(uid, 'Internal server error.');
-      }
-    };
   }
 
-  /**
-   * @description Handler for when a player disconnects. Removes the player from
-   * the list of players in this room.
-   * @param uid - The UID of the player that disconnected.
-   * @private
-   */
-  private onDisconnect(uid: UUID): void {
-    this.game.playerLeft(uid);
-    this.broadcastStateUpdate();
+  public sendMessage(conn: WebSocket, message: object): void {
+    conn.send(JSON.stringify(message));
   }
 
-  /**
-   * @description Handler for when a message is received from a player WebSocket
-   * connection.
-   * @param playerUid - The player who sent the message.
-   * @param transmission - The contents of the message, as an object.
-   * @private
-   */
-  private onReceive(
-    playerUid: UUID,
-    transmission: ValidIncomingTransmission,
+  public sendError(
+    conn: WebSocket,
+    errorCode: string,
+    errorMessage?: string,
   ): void {
-    if (isValid(transmission)) {
-      switch (transmission.type) {
-        case 'START_GAME':
-          this.startGame(playerUid);
-          break;
-        case 'STAGE_CARD_CLICKED':
-          this.cardClicked(transmission.card, playerUid);
-          break;
-        default: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const _: never = transmission;
-          throw new Error('Missing receive logic in controller.');
-        }
-      }
-    }
-  }
-
-  /**
-   * @description Send the same message to all users connected.
-   * @param message - The message to send.
-   * @private
-   */
-  private broadcastMessage(message: object): void {
-    this.game.players.forEach((player: Player | null): void => {
-      if (player === null) return;
-      player.conn.send(JSON.stringify(message));
+    this.sendMessage(conn, {
+      type: 'ERROR',
+      errorCode,
+      errorMessage,
     });
   }
 
-  /**
-   * @description Broadcasts the current state of the room to all players.
-   * @private
-   */
-  private broadcastStateUpdate(): void {
-    this.broadcastMessage(this.game.state);
-  }
+  public broadcastState(): void {
+    [this.playerA, this.playerB].forEach(
+      (player: Pick<Player, 'conn'> | null): void => {
+        if (!player) return;
 
-  private sendMessageToPlayer(playerUid: UUID, message: string) {
-    const player = this.game.findPlayer(playerUid);
-    if (player) {
-      player.asPlayer.conn.send(message);
-    } else {
-      throw new Error('Player does not exist.');
-    }
-  }
+        const currentGameState: GameState = this.game
+          ? this.game.state
+          : {
+              roomUid: this.roomUid,
+              inProgress: false,
+              playerA: this.playerA
+                ? {
+                    ...this.playerA,
+                    conn: undefined,
+                    uid: undefined,
+                  }
+                : null,
+              playerB: this.playerB
+                ? {
+                    ...this.playerB,
+                    conn: undefined,
+                    uid: undefined,
+                  }
+                : null,
+              turn: 'A',
+              cardStage: [],
+              warStatus: 0,
+              scienceTokens: [],
+            };
 
-  private sendErrorToPlayer(playerUid: UUID, error: string) {
-    this.sendMessageToPlayer(
-      playerUid,
-      JSON.stringify({
-        error,
-      }),
+        this.sendMessage(player?.conn, currentGameState);
+      },
     );
   }
 
-  // // // // // // // // //
-  //    EVENT HANDLERS    //
-  // // // // // // // // //
-
-  private startGame(playerUid: UUID): void {
-    if (this.playerCount !== 2) {
-      this.sendErrorToPlayer(playerUid, 'Not enough players.');
+  public onConnection(conn: WebSocket, playerName: string): void {
+    // First, check that a player can be added to the room.
+    if (this.playerA && this.playerB) {
+      this.sendError(
+        conn,
+        'TOO_MANY_PLAYERS',
+        'There are already two players in this room.',
+      );
+      conn.close();
       return;
     }
 
-    this.game.reset();
-    this.broadcastStateUpdate();
+    // Initialize the new player.
+    const uid: UUID = uuidv4();
+    const newPlayer: Pick<Player, 'uid' | 'conn' | 'name'> = {
+      uid,
+      conn,
+      name: playerName,
+    };
+
+    if (!this.playerA) {
+      this.playerA = newPlayer;
+    } else {
+      this.playerB = newPlayer;
+    }
+
+    // Send an update to players.
+    this.broadcastState();
+
+    // Set up WebSocket event handlers.
+    conn.onclose = () => this.onDisconnect(uid);
+    conn.onmessage = (event: MessageEvent) => this.onMessage(uid, event);
   }
 
-  private cardClicked(card: Card, playerUid: UUID): void {
-    if (!this.game.isTurn(playerUid)) {
-      this.sendErrorToPlayer(playerUid, 'It is not your turn.');
-      return;
+  public onDisconnect(playerUid: UUID): void {
+    if (this.game) {
+      this.game = null;
     }
 
+    if (this.playerA?.uid === playerUid) {
+      this.playerA = null;
+    }
+
+    if (this.playerB?.uid === playerUid) {
+      this.playerB = null;
+    }
+
+    this.broadcastState();
+  }
+
+  public onMessage(playerUid: UUID, event: MessageEvent): void {
+    const player = this.getPlayerFromUid(playerUid);
+    if (!player) return;
+
+    // Validate the data
+    let data: ValidIncomingTransmission;
     try {
-      this.game.clickedCard(card, playerUid);
+      data = JSON.parse(event.data as string);
+      assertValid(data);
     } catch (e) {
-      this.sendErrorToPlayer(playerUid, 'Cannot click that card.');
+      this.sendError(
+        player.conn,
+        'MESSAGE_NOT_RECOGNIZED',
+        'Message type is not recognized.',
+      );
       return;
     }
 
-    this.broadcastStateUpdate();
+    // Check for listeners
+    const typesHandled: string[] = [];
+    this.listeners.forEach(
+      (listener: TransmissionListener, index: number): void => {
+        if (typesHandled.includes(listener.on)) return;
+        if (listener.on !== data.type) return;
+        if (
+          listener.additionalCheck &&
+          !listener.additionalCheck.call(this, data, playerUid)
+        )
+          return;
+
+        // Met criteria
+        try {
+          listener.do.call(this, data, playerUid);
+          typesHandled.push(listener.on);
+
+          if (--listener.times === 0) {
+            this.listeners.splice(index, 1);
+          }
+
+          this.broadcastState();
+        } catch (e) {
+          this.sendError(player.conn, 'INTERNAL_ERROR', (e as Error).message);
+        }
+      },
+    );
+  }
+
+  private getPlayerFromUid(
+    playerUid: UUID,
+  ): Pick<Player, 'uid' | 'conn' | 'name'> | null {
+    if (this.playerA?.uid === playerUid) {
+      return this.playerA;
+    }
+
+    if (this.playerB?.uid === playerUid) {
+      return this.playerB;
+    }
+
+    return null;
+  }
+
+  public startGame(): void {
+    if (!this.playerA || !this.playerB) {
+      throw new Error('Not enough players to start the game.');
+    }
+
+    this.game = new GameController(
+      this.roomUid,
+      this.playerA,
+      this.playerB,
+      this.addListener.bind(this),
+    );
+    this.broadcastState();
+  }
+
+  public clearListenersOfType(listenerType: string): void {
+    this.listeners = this.listeners.filter(
+      (listener: TransmissionListener) => listener.on === listenerType,
+    );
+  }
+
+  public addListener(listener: TransmissionListener): void {
+    this.listeners.push(listener);
   }
 }
